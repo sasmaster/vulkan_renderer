@@ -49,8 +49,9 @@ int main(int argc, char *argv[])
 		glfwPollEvents();
 	}
 
+	
 
-	vkDestroyInstance(vkInstanceHandle, NULL);
+	DisposeVKInstance(vkInstanceHandle);
 
 	glfwDestroyWindow(window);
 

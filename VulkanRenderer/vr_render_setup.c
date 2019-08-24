@@ -1,6 +1,6 @@
 #include "vr_render_setup.h"
 
-
+#include <assert.h>
 
 
 static const char* validationLayersStr[1] = { "VK_LAYER_KHRONOS_validation" };
@@ -10,6 +10,77 @@ const bool enableValidationLayers = true;
 #else
 const bool enableValidationLayers = true;
 #endif
+
+VkDebugUtilsMessengerEXT debugMessenger = NULL;
+static PFN_vkCreateDebugUtilsMessengerEXT CreateDebugUtilsMessenger = VK_NULL_HANDLE;
+static PFN_vkDestroyDebugUtilsMessengerEXT DestroyDebugUtilsMessenger = VK_NULL_HANDLE;
+static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+	VkDebugUtilsMessageTypeFlagsEXT messageType,
+	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+	void* pUserData)
+{
+	 
+	 
+	switch (messageSeverity)
+	{
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+		printf("Severity: Diagnostic,");
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+		printf("Severity: Info,");
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+		printf("Severity: Warning,");
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+		printf("Severity: Error,");
+		break;
+	default:
+		printf("Severity: Unknown,");
+		break;
+	}
+	switch (messageType)
+	{
+	case	VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT:
+		printf("Type:General,");
+		break;
+	case	VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT:
+		printf("Type:Validation,");
+		break;
+	case	VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT:
+		printf("Type:Performance,");
+		break;
+	default:
+		printf("Type:Unknown,");
+		break;
+	}
+	 
+	printf("Message:%s\n", pCallbackData->pMessage);
+
+	return VK_FALSE;
+}
+
+
+
+
+static bool CreateDebugOutput(VkInstance instance)
+{
+	VkDebugUtilsMessengerCreateInfoEXT createInfo = {
+	 .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+	 .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+	 .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+	 .pfnUserCallback = debugCallback,
+	 .pUserData = NULL // Optional
+	};
+	//vkCreateDebugReportCallbackEXT
+	//vkCreateDebugUtilsMessengerEXT
+	CreateDebugUtilsMessenger = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+	DestroyDebugUtilsMessenger = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+	assert(CreateDebugUtilsMessenger);
+	assert(DestroyDebugUtilsMessenger);
+	return CreateDebugUtilsMessenger(instance, &createInfo, NULL, &debugMessenger);
+}
 
 //Every value of the array must be deallocated,then Returned pointer must be deallocated with sb_free
 static VKEXtension** GetRequiredExtensions()
@@ -141,6 +212,22 @@ bool CreateVKInstance(VkInstance* instanceOut)
 		free(extensions[i]);
 	}
 	sb_free(extensions);
+
+#ifndef NODEBUG
+	CreateDebugOutput(*instanceOut);
+#endif // !NODEBUG
+
+	return true;
+}
+
+bool DisposeVKInstance(VkInstance instance)
+{
+#ifndef NODEBUG
+	//must destroy Debug Messenger if used before killing instance
+	DestroyDebugUtilsMessenger(instance, debugMessenger, NULL);
+#endif // !NODEBUG
+	vkDestroyInstance(instance, NULL);
+
 	return true;
 }
 

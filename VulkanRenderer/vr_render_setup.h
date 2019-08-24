@@ -28,8 +28,10 @@ extern "C" {
 
 	}VKEXtension;
 
-
+	 
 	bool CreateVKInstance(VkInstance* instanceOut);
+
+	bool DisposeVKInstance(VkInstance instance);
 
 #ifdef __cplusplus
 }

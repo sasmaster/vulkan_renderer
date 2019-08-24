@@ -86,11 +86,11 @@
       <ConformanceMode>true</ConformanceMode>
       <ExceptionHandling>false</ExceptionHandling>
       <CompileAs>CompileAsC</CompileAs>
-      <AdditionalIncludeDirectories>D:\VulkanSDK\1.1.114.0\Include;D:\simplenginetutorial\thirdparty\glfw-3.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\VulkanSDK\1.1.114.0\Include;$(ProjectDir)..\thirdparty\glfw-3.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>D:\simplenginetutorial\thirdparty\glfw-3.3\lib-vc2017\Debug;D:\vulkan_renderer\thirdparty\vulkan\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\thirdparty\glfw-3.3\lib-vc2017\Debug;$(ProjectDir)..\thirdparty\vulkan\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3dll.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
